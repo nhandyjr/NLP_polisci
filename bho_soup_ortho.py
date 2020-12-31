@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec 20 11:49:38 2020
-
-@author: Owner
+This is an experiment in processing natural language from political 
+interviews and speeches.  Transcripts will be scraped the web using 
+Requests and BeautifulSoup modules and processed using SciKitLearn module.
+After EDA, topic modeling and sentiment analysis will be performed with an 
+additional goal of using Recursive NNs for sentence-sentiment analysis.
 """
-#### SEARCH LANDING PAGE ####
+### SEARCH LANDING PAGE ####
 # https://www.rev.com/blog/transcripts?s=barack+obama
     
 # 
@@ -24,10 +26,12 @@ urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-inte
         ]
 
 
-import requests   #allows us to download initial HTML info
-from bs4 import BeautifulSoup  # allows for usage of DATA within HTML
+import requests   #allows download of initial HTML info
+from bs4 import BeautifulSoup  # allows parsing of DATA within HTML
+
 import pandas as pd
 from pandas import DataFrame
+
 import re
 import os
 import pickle
@@ -37,35 +41,38 @@ os.listdir
 os.chdir("C:/Users/Owner/Desktop/Data Science/Python")
 os.mkdir("transcripts_3")
 
-       
-# del all_trns
+
 def url_to_trns(url):
-    '''Returns transcript data specifically from scrapsfromtheloft.com.'''
+    '''Returns transcript data specifically from www.rev.com/blog/transcripts?s=barack+obama.'''
     pg= requests.get(url)
     soup = BeautifulSoup(pg.text, 'html.parser')
     all_p = soup.find_all('p')
     text = [p.text for p in all_p]
-    print(url, end='\n\n')
+    print(url, end='\n'*2)
     return text
 
+# Extract text from Soup Objects 
+# LIST each transcript
 all_trns = [url_to_trns(u) for u in urls]
-trns_num = ["trns"+str(i) for i in range(len(all_trns)) ]
 
-# PICKLE files
+# Create Index variable for each transcript
+trns_num = ["trns"+str(i+1) for i in range(len(all_trns)) ]
+
+
+# PICKLE files and index each transcript 
 for i,n in enumerate(trns_num):
-    with open("transcripts/" + n + ".txt", "wb") as file:
+    with open("transcripts_3/" + n + ".txt", "wb") as file:
         pickle.dump(all_trns[i], file)
 
 # LOAD pickled files
 data = {}
 for i, c in enumerate(trns_num):
-    with open("transcripts/" + c + ".txt", "rb") as file:
+    with open("transcripts_3/" + c + ".txt", "rb") as file:
         data[c] = pickle.load(file)
-        
-
-        
+          
 print(data.keys())
 [' '.join([data.item.partition(')')[2] for data.item in data if data.value.startswith("Barack Obama")]
+
 data['trns1'][:5]
 data2 = data[0,5:]
 
