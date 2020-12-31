@@ -27,6 +27,7 @@ import pandas as pd
 from pandas import DataFrame
 import re
 import pickle
+import os
 
 import string
 from sklearn.feature_extraction.text import CountVectorizer
@@ -39,6 +40,8 @@ nltk.download('averaged_perceptron_tagger')
 stopwords = stopwords.words('english')
 print(stopwords)
 
+os.chdir('C:/Users/Owner/Desktop/Data Science/Python')
+os.getcwd()
 
 ### OBTAIN robot.txt 
 req = 'https://www.rev.com/robots.txt'
@@ -61,45 +64,10 @@ urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-inte
          ,'https://www.rev.com/blog/transcripts/democratic-national-convention-dnc-night-3-transcript'
         ]
 
-# # PICKLE files
-# Create a key value for each transcript
-# trns_num = ["trns"+str(i+1) for i in range(len(urls)) ]
-# for i,n in enumerate(trns_num):
-#     with open("transcripts/" + n + ".txt", "wb") as file:
-#         pickle.dump(all_trns[i], file)
-
-# dict_keys
-# LOAD pickled files
-data = {}
-for i, c in enumerate(trns_num):
-    with open("transcripts/" + c + ".txt", "rb") as file:
-        data[c] = pickle.load(file)
-
-import datetime
-print(data.keys())
-
-dates = []  
-for k in data.keys():
-    dte = data[k][0]    
-    dte_obj = datetime.datetime.strptime(dte, '%b %d, %Y').date()
-    print(k,dte,dte_obj)
-    dates.append(dte_obj)
-     # data=dict({zip((k,dte_obj):data[k][1:]})
-del (k, dte, dte_obj)
-
-
-
-
-print(data["trns2"][0], type(data["trns2"][0]))
-
-
-# dict((d1[key], value) for (key, value) in d.items())
-
-
 
 all_quote = []
 def url_to_trns(url):
-    print(url, end='\n \n')
+    print(url, end='\n'*2)
     pg= requests.get(url)
     soup = BeautifulSoup(pg.text, 'html.parser')
     all_p = soup.find_all('p')
@@ -117,15 +85,20 @@ def url_to_trns(url):
                     if quote["quote"].startswith("Barack Obama")])]
     return  text
 
+
+# Create Index variable for each transcript
+trns_num = ["trns"+str(i+1) for i in range(len(urls)) ]
+
+
 all_trns_df = DataFrame([url_to_trns(u) for u in urls]
-                       ,columns = ["transcript"])
-all_trns_df.Index(trns_num)
+                       ,columns = ["transcript"]
+                       ,index = trns_num)
 
-os.chdir('C:/Users/Owner/Desktop/Data Science/Python')
+#PICKLE each transcript
+for i,n in enumerate(trns_num):
+    with open("transcripts/" + n + ".txt", "wb") as file:
+        pickle.dump(all_trns_df.iloc[i], file)
 
-
-
-all_trns_df = DataFrame(data, columns = "transcript")
 
 def clean_string(text):
     text = text.lower()
@@ -150,14 +123,19 @@ all_trns_df['wc_mod']   = all_trns_df['trns_mod'].apply(lambda x: word_count_WC(
 from sklearn.feature_extraction.text import CountVectorizer
 
 cv = CountVectorizer(stop_words = 'english'
-                      , min_df=4
-                      , ngram_range=(4,6)
+                      , min_df=1
+                      , ngram_range=(1,5)
                      )
 vectorizer = cv.fit_transform(all_trns_df.trns_mod)
-vectors = pd.DataFrame(vectorizer.toarray(), columns = cv.get_feature_names())
+vectors = pd.DataFrame(vectorizer.toarray()
+                       ,columns = cv.get_feature_names()
+                       ,index = trns_num
+                       )
 print (vectors)
     
 po = vectors["poor"]
+
+
 
     
     

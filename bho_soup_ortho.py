@@ -12,18 +12,6 @@ additional goal of using Recursive NNs for sentence-sentiment analysis.
 # 
 ########
 
-urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-interview-transcript',
-          'https://www.rev.com/blog/transcripts/barack-obama-campaign-speech-for-joe-biden-transcript-miami-fl-november-2',
-           'https://www.rev.com/blog/transcripts/barack-obama-drive-in-rally-speech-transcript-atlanta-ga-november-2',
-           'https://www.rev.com/blog/transcripts/joe-biden-barack-obama-campaign-event-speech-transcript-flint-mi-october-31',
-           'https://www.rev.com/blog/transcripts/barack-obama-campaign-speech-for-joe-biden-transcript-orlando-october-27',
-           'https://www.rev.com/blog/transcripts/barack-obama-florida-rally-speech-transcript-for-joe-biden-october-24',
-           'https://www.rev.com/blog/transcripts/barack-obama-campaign-rally-for-joe-biden-kamala-harris-speech-transcript-october-21',
-           'https://www.rev.com/blog/transcripts/barack-obama-campaign-roundtable-event-for-joe-biden-kamala-harris-transcript-october-21',
-           'https://www.rev.com/blog/transcripts/barack-obama-gives-best-wishes-to-president-trump-and-melania-trump-after-covid-diagnosis',
-           'https://www.rev.com/blog/transcripts/barack-obama-2020-dnc-speech-transcript',
-           'https://www.rev.com/blog/transcripts/democratic-national-convention-dnc-night-3-transcript'
-        ]
 
 
 import requests   #allows download of initial HTML info
@@ -36,11 +24,23 @@ import re
 import os
 import pickle
 
-
 os.listdir
 os.chdir("C:/Users/Owner/Desktop/Data Science/Python")
 os.mkdir("transcripts_3")
 
+
+urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-interview-transcript',
+          'https://www.rev.com/blog/transcripts/barack-obama-campaign-speech-for-joe-biden-transcript-miami-fl-november-2',
+           'https://www.rev.com/blog/transcripts/barack-obama-drive-in-rally-speech-transcript-atlanta-ga-november-2',
+           'https://www.rev.com/blog/transcripts/joe-biden-barack-obama-campaign-event-speech-transcript-flint-mi-october-31',
+           'https://www.rev.com/blog/transcripts/barack-obama-campaign-speech-for-joe-biden-transcript-orlando-october-27',
+           'https://www.rev.com/blog/transcripts/barack-obama-florida-rally-speech-transcript-for-joe-biden-october-24',
+           'https://www.rev.com/blog/transcripts/barack-obama-campaign-rally-for-joe-biden-kamala-harris-speech-transcript-october-21',
+           'https://www.rev.com/blog/transcripts/barack-obama-campaign-roundtable-event-for-joe-biden-kamala-harris-transcript-october-21',
+           'https://www.rev.com/blog/transcripts/barack-obama-gives-best-wishes-to-president-trump-and-melania-trump-after-covid-diagnosis',
+           'https://www.rev.com/blog/transcripts/barack-obama-2020-dnc-speech-transcript',
+           'https://www.rev.com/blog/transcripts/democratic-national-convention-dnc-night-3-transcript'
+        ]
 
 def url_to_trns(url):
     '''Returns transcript data specifically from www.rev.com/blog/transcripts?s=barack+obama.'''
