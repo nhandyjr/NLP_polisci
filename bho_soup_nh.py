@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec 20 11:49:38 2020
-
-@author: Owner
+This is an experiment in processing natural language from political 
+interviews and speeches.  Transcripts will be scraped the web using 
+Requests and BeautifulSoup modules and processed using SciKitLearn module.
+After EDA, topic modeling and sentiment analysis will be performed with an 
+additional goal of using Recursive NNs for sentence-sentiment analysis.
 """
 #### SEARCH LANDING PAGE ####
 # https://www.rev.com/blog/transcripts?s=barack+obama
     
-# URL = 'https://joebiden.com/racial-economic-equity/#'
-# page = requests.get(URL)
+        # URL = 'https://joebiden.com/racial-economic-equity/#'
+        # page = requests.get(URL)
+        
+        # URL = 'https://joebiden.com/racial-economic-equity/#'
+            ## https://www.nber.org/papers/w27462
+            ## https://www.nber.org/system/files/working_papers/w27462/w27462.pdf
+        
+        # bid_har = requests.get('https://joebiden.com/racial-economic-equity/#')
 
-# URL = 'https://joebiden.com/racial-economic-equity/#'
-    ## https://www.nber.org/papers/w27462
-    ## https://www.nber.org/system/files/working_papers/w27462/w27462.pdf
 
-# bid_har = requests.get('https://joebiden.com/racial-economic-equity/#')
-
-
-# 
-########
-
+#### Modules
 import requests   #allows us to download initial HTML info
 from bs4 import BeautifulSoup  # allows for usage of DATA within HTML
+
 import pandas as pd
 from pandas import DataFrame
 import re
@@ -37,6 +38,7 @@ import nltk
 nltk.download('averaged_perceptron_tagger')
 stopwords = stopwords.words('english')
 print(stopwords)
+
 
 ### OBTAIN robot.txt 
 req = 'https://www.rev.com/robots.txt'
@@ -91,7 +93,7 @@ del (k, dte, dte_obj)
 print(data["trns2"][0], type(data["trns2"][0]))
 
 
-dict((d1[key], value) for (key, value) in d.items())
+# dict((d1[key], value) for (key, value) in d.items())
 
 
 
