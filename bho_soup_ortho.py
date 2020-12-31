@@ -23,6 +23,17 @@ from pandas import DataFrame
 import re
 import os
 import pickle
+import string
+import string
+from sklearn.feature_extraction.text import CountVectorizer
+
+from nltk.corpus import stopwords
+import nltk
+nltk.download('punkt')
+import nltk
+nltk.download('averaged_perceptron_tagger')
+stopwords = stopwords.words('english')
+print(stopwords)
 
 os.listdir
 os.chdir("C:/Users/Owner/Desktop/Data Science/Python")
@@ -32,7 +43,7 @@ os.chdir("C:/Users/Owner/Desktop/Data Science/Python")
 urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-interview-transcript',
           'https://www.rev.com/blog/transcripts/barack-obama-campaign-speech-for-joe-biden-transcript-miami-fl-november-2',
            'https://www.rev.com/blog/transcripts/barack-obama-drive-in-rally-speech-transcript-atlanta-ga-november-2',
-           'https://www.rev.com/blog/transcripts/joe-biden-barack-obama-campaign-event-speech-transcript-flint-mi-october-31',
+           # 'https://www.rev.com/blog/transcripts/joe-biden-barack-obama-campaign-event-speech-transcript-flint-mi-october-31',
            'https://www.rev.com/blog/transcripts/barack-obama-campaign-speech-for-joe-biden-transcript-orlando-october-27',
            'https://www.rev.com/blog/transcripts/barack-obama-florida-rally-speech-transcript-for-joe-biden-october-24',
            'https://www.rev.com/blog/transcripts/barack-obama-campaign-rally-for-joe-biden-kamala-harris-speech-transcript-october-21',
@@ -42,13 +53,15 @@ urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-inte
            'https://www.rev.com/blog/transcripts/democratic-national-convention-dnc-night-3-transcript'
         ]
 
+
 def url_to_trns(url):
-    '''Returns transcript data specifically from www.rev.com/blog/transcripts?s=barack+obama.'''
-    print(url, end='\n'*2)
-    
+    '''Returns transcript data specifically from www.rev.com/blog/transcripts?s=barack+obama.
+       where Barack Obama is the speaker
+    '''
     pg= requests.get(url)
     soup = BeautifulSoup(pg.text, 'html.parser')
     all_p = soup.find_all('p')
+    print(url, end='\n'*2)   
     
     all_quote = []
     for idx, qte in enumerate(all_p):
@@ -58,11 +71,11 @@ def url_to_trns(url):
     text=[' '.join([quote["quote"].partition(')')[2] 
                     for quote in all_quote
                     if quote["quote"].startswith("Barack Obama")])]
-    
     return text
 
-# Extract text from Soup Objects 
-# LIST each transcript
+
+#### Extract text from Soup Objects 
+#### LIST each transcript
 all_trns = [url_to_trns(u) for u in urls]
 
 # Create Index variable for each transcript
@@ -82,61 +95,90 @@ for i, c in enumerate(trns_num):
           
 print(data.keys())
 
-data['trns3'][:5]
-data2 = data[0,5:]
-
-# We are going to change this to key: comedian, value: string format
-def combine_text(list_of_text):
-    '''Takes a list of text and combines them into one large chunk of text.'''
-    combined_text = ' '.join(list_of_text)
-    return combined_text
-
-# Combine it!
-data_combined = {key: [combine_text(value)] for (key, value) in data.items()}
-
-
-
 
 pd.set_option('max_colwidth',150)
 
-data_df = pd.DataFrame.from_dict(data_combined).transpose()
-data_df.columns = ['transcript']
-data_df = data_df.sort_index()
-data_df
+data_df = pd.DataFrame.from_dict(data).transpose()
+data_df.columns = ["quotes"]
 
-# Let's take a look at the transcript for Ali Wong
-data_df.transcript.loc['ali']
+def clean_string(text):
+    text = text.lower()
+    text = re.sub('\[.*?\]', '', text)
+    text = re.sub('\w*\d\w*', '', text)
+    text = ''.join([word for word in text if word not in string.punctuation])
+    text = ' '.join([word for word in text.split() if word not in stopwords])    
+    return text
 
-bho_df = DataFrame([' '.join([quote.partition(')')[2] for quote in data if quote.startswith("Barack Obama")])]
-                   ,columns=['quote']
-                  )
+def word_count_WC(x):
+    my_astring = x.lower().split()
+    sum = 0
+    for item in my_astring:
+        sum = sum + 1
+    return sum
 
 
+data_df['quotes_mod'] = data_df['quotes'].apply(lambda x: clean_string(x))
+data_df['wc_0']     = data_df['quotes'].apply(lambda x: word_count_WC(x))
+data_df['wc_mod']   = data_df['quotes_mod'].apply(lambda x: word_count_WC(x))
 
-# # Pickle files for later use
 
-# # Make a new directory to hold the text files
-# !mkdir transcripts
+#### Document-Term Matrix
+from sklearn.feature_extraction.text import CountVectorizer
 
-# for i, c in enumerate(comedians):
-#     with open("transcripts/" + c + ".txt", "wb") as file:
-#         pickle.dump(transcripts[i], file)
+cv = CountVectorizer(stop_words = 'english'
+                      , min_df=2
+                      , ngram_range=(1,6)
+                     )
 
-import datetime
+vectorizer = cv.fit_transform(data_df.quotes_mod)
 
-dates = []  
-for idx, dte in enumerate(all_trns):
-    dte = all_trns[idx][0]
-    print(dte)
-    dte_obj = datetime.datetime.strptime(dte, '%b %d, %Y')
-    dates.append(dte_obj)
-del (idx, dte, dte_obj)
+vectors = pd.DataFrame(vectorizer.toarray()
+                       ,columns = cv.get_feature_names()
+                       ,index = trns_num
+                       )
+print (vectors)
 
-dates = []  
-for idx, dte in enumerate(all_trns):
-    dte = all_trns[idx][0]
-    print(dte)
-    dte_obj = datetime.datetime.strptime(dte, '%b %d, %Y')
-    dates.append(dte_obj)
-    all_trns[idx][0] = dte_obj
-del (idx, dte, dte_obj)
+
+'''
+EXPLORATORY DATA ANALYSIS
+(1) Top Words
+(2) Vocabulary: Unique number of words used
+    * might need to normalize a time-frame for each transcripts
+(3) Top 4-n-grams
+'''
+
+
+'''
+SENTIMENT ANALYSIS
+
+'''
+
+# pip install textblob
+
+from textblob import TextBlob as tb
+
+pol = lambda x: tb(x).sentiment.polarity
+sub = lambda x: tb(x).sentiment.subjectivity
+
+data_df['polarity'] = data_df['quotes_mod'].apply(pol)
+data_df['subjectivity'] = data_df['quotes_mod'].apply(sub)
+
+import matplotlib.pyplot as plt
+
+plt.rcParams['figure.figsize'] = [10,8]
+
+for index, trns in enumerate(data_df.index):
+    x = data_df.polarity.loc[trns]
+    y = data_df.subjectivity.loc[trns]
+    plt.scatter(x,y,color='blue')
+    plt.text(x+.001, y+.001,trns)
+    plt.xlim(0,.5)
+    plt.ylim(.25,.5)
+
+plt.title('Sentiment Analysis', fontsize=20)
+plt.xlabel('<--Negative------- Positive -->', fontsize=15)
+plt.ylabel('<--Facts------- Opinion-->', fontsize=15)
+
+plt.show()
+
+
