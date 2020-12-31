@@ -68,6 +68,7 @@ urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-inte
 all_quote = []
 def url_to_trns(url):
     print(url, end='\n'*2)
+    
     pg= requests.get(url)
     soup = BeautifulSoup(pg.text, 'html.parser')
     all_p = soup.find_all('p')
@@ -76,9 +77,6 @@ def url_to_trns(url):
     for idx, qte in enumerate(all_p):
        qte = all_p[idx].getText()       
        all_quote.append({'index': idx, 'quote': qte})
-        ###
-        #Intermediate step to create list where date is first element
-        ###
         
     text=[' '.join([quote["quote"].partition(')')[2] 
                     for quote in all_quote
@@ -137,7 +135,24 @@ po = vectors["poor"]
 
 
 
-    
+   
+dates = []  
+for idx, dte in enumerate(all_trns):
+    dte = all_trns[idx][0]
+    print(dte)
+    dte_obj = datetime.datetime.strptime(dte, '%b %d, %Y')
+    dates.append(dte_obj)
+del (idx, dte, dte_obj)
+
+dates = []  
+for idx, dte in enumerate(all_trns):
+    dte = all_trns[idx][0]
+    print(dte)
+    dte_obj = datetime.datetime.strptime(dte, '%b %d, %Y')
+    dates.append(dte_obj)
+    all_trns[idx][0] = dte_obj
+del (idx, dte, dte_obj)
+ 
     
     
     

@@ -26,7 +26,7 @@ import pickle
 
 os.listdir
 os.chdir("C:/Users/Owner/Desktop/Data Science/Python")
-os.mkdir("transcripts_3")
+# os.mkdir("transcripts_3")
 
 
 urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-interview-transcript',
@@ -44,11 +44,21 @@ urls =  ['https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-inte
 
 def url_to_trns(url):
     '''Returns transcript data specifically from www.rev.com/blog/transcripts?s=barack+obama.'''
+    print(url, end='\n'*2)
+    
     pg= requests.get(url)
     soup = BeautifulSoup(pg.text, 'html.parser')
     all_p = soup.find_all('p')
-    text = [p.text for p in all_p]
-    print(url, end='\n'*2)
+    
+    all_quote = []
+    for idx, qte in enumerate(all_p):
+       qte = all_p[idx].getText()       
+       all_quote.append({'index': idx, 'quote': qte})
+        
+    text=[' '.join([quote["quote"].partition(')')[2] 
+                    for quote in all_quote
+                    if quote["quote"].startswith("Barack Obama")])]
+    
     return text
 
 # Extract text from Soup Objects 
@@ -56,7 +66,7 @@ def url_to_trns(url):
 all_trns = [url_to_trns(u) for u in urls]
 
 # Create Index variable for each transcript
-trns_num = ["trns"+str(i+1) for i in range(len(all_trns)) ]
+trns_num = ["trns"+str(i+1) for i in range(len(urls)) ]
 
 
 # PICKLE files and index each transcript 
@@ -71,9 +81,8 @@ for i, c in enumerate(trns_num):
         data[c] = pickle.load(file)
           
 print(data.keys())
-[' '.join([data.item.partition(')')[2] for data.item in data if data.value.startswith("Barack Obama")]
 
-data['trns1'][:5]
+data['trns3'][:5]
 data2 = data[0,5:]
 
 # We are going to change this to key: comedian, value: string format
@@ -84,6 +93,9 @@ def combine_text(list_of_text):
 
 # Combine it!
 data_combined = {key: [combine_text(value)] for (key, value) in data.items()}
+
+
+
 
 pd.set_option('max_colwidth',150)
 
@@ -101,43 +113,6 @@ bho_df = DataFrame([' '.join([quote.partition(')')[2] for quote in data if quote
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-import datetime
-
-dates = []  
-date_txt = []
-for idx, dte in enumerate(all_trns):
-    dte = all_trns[idx][0]
-    date_txt.append(dte)
-    print(dte)
-    dte_obj = datetime.datetime.strptime(dte, '%b %d, %Y')
-    dates.append(dte_obj)
-    all_trns[idx][0] = dte_obj
-del (idx, dte, dte_obj)
-
-print(len(all_trns))
-        
-
-tst = [quote["quote"].partition(')')[2] for quote in all_quote if quote["quote"].startswith("Barack Obama")]
-
-
-
-bho_list = [' '.join([qte.partition(')')[2] for qte in all_trns if qte.startswith("Barack Obama:")])]
-
-bho_list = [' '.join([qte.partition(')')[2] for qte in all_trns if qte.startswith("Barack Obama:")])]
-
-
-
 # # Pickle files for later use
 
 # # Make a new directory to hold the text files
@@ -147,55 +122,6 @@ bho_list = [' '.join([qte.partition(')')[2] for qte in all_trns if qte.startswit
 #     with open("transcripts/" + c + ".txt", "wb") as file:
 #         pickle.dump(transcripts[i], file)
 
-
-# del (all_trns)
-# pg   = requests.get('https://www.rev.com/blog/transcripts/barack-obama-2020-60-minutes-interview-transcript')
-# soup = BeautifulSoup(pg.text, 'html.parser')
-# all_p = soup.find_all('p')
-
-# all_quote = []
-# text = [p.text for p in soup.find_all('p')]
-
-all_quote = []
-bho_list = []
-def url_to_trns(url):
-    print(url, end='\n \n')
-    # print(url)
-    pg= requests.get(url)
-    soup = BeautifulSoup(pg.text, 'html.parser')
-    all_p = soup.find_all('p')
-    for idx, qte in enumerate(all_p):
-       qte = all_p[idx].getText()
-       all_quote.append({'index': idx, 'quote': qte})
-    # bho_list.append([' '.join([qte["quote"].partition(')')[2] for qte in all_quote if qte["quote"].startswith("Barack Obama")])])
-    # bho_list = append([' '.join([quote["quote"].partition(')')[2] for quote in all_quote
-                    # if quote["quote"].startswith("Barack Obama")])])
-                   
-    
-    # bho_df = DataFrame([' '.join([quote["quote"].partition(')')[2] 
-    #                for quote in all_quote
-    #                if quote["quote"].startswith("Barack Obama")])]
-    #                ,columns=['quote']
-    #               )
-    
-                  
-            
-    # bho_qte = [' '.join([quote["quote"].partition(')')[2] for quote in all_quote if quote["quote"].startswith("Barack Obama")])]                            ,columns=['quote']
-    # text = [p.text for p in soup.find_all('p')]
-    return all_quote, bho_df, bho_list
-    
-
-all_trns = [url_to_trns(u) for u in urls]
-
-
-    
-    
-    
-    
-    
-    
-    
-   
 import datetime
 
 dates = []  
